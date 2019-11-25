@@ -2,6 +2,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const fse = require('fs-extra');
 const WriteHelper = require('../write_helper');
 
 module.exports = MapDump;
@@ -12,7 +13,7 @@ module.exports = MapDump;
  * @constructor
  */
 function MapDump(path_) {
-    this._path = path_;
+    this._path = path.resolve(path_);
     this._files = {};
 }
 
@@ -20,14 +21,19 @@ function MapDump(path_) {
  */
 MapDump.prototype.init = function() {
     this.clear();
-
     fs.mkdirSync(this._path);
+};
+
+MapDump.prototype.copySample = function(path_) {
+    fse.copySync(path_, this._path);
 };
 
 /**
  */
 MapDump.prototype.clear = function() {
-    fs.rmdirSync(this._path);
+    if(fs.existsSync(this._path)) {
+        fse.removeSync(this._path);
+    }
 };
 
 /**

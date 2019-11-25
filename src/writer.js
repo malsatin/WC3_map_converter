@@ -28,10 +28,14 @@ function saveMap(mapObj) {
  * @param {String} mapName
  */
 function saveDump(dump, mapName) {
-    let mpq = MPQ.create(_outputPath(`${mapName}.${Constants.WC_EXT}`));
-
+    dump.init();
+    dump.copySample(_samplePath());
     dump.dumpFiles();
+
+    let mpq = MPQ.create(_outputPath(`${mapName}.${Constants.WC_EXT}`));
     mpq.addDirectory(_outputPath(mapName));
+    mpq.flush();
+
     dump.clear();
 }
 
@@ -63,7 +67,13 @@ function dumpMap(map) {
 }
 
 function _getBuffer(translatorProto) {
+    let resp = translatorProto;
 
+    if(resp.errors && resp.errors.length) {
+        throw new Error('Translation error: ' + resp.errors.join('; '));
+    }
+
+    return resp.buffer;
 }
 
 /**
@@ -73,4 +83,8 @@ function _getBuffer(translatorProto) {
  */
 function _outputPath(path) {
     return './data/output/' + path;
+}
+
+function _samplePath() {
+    return './data/sample';
 }

@@ -8,16 +8,18 @@ module.exports = MPQ;
 
 /**
  * @param {String} absolutePath
+ * @param {Array<String>} commands
  * @constructor
  */
-function MPQ(absolutePath) {
+function MPQ(absolutePath, commands = []) {
     this._path = absolutePath;
+    this._cmd = commands;
 }
 
 MPQ.prototype.addFile = function(path_, name = null) {
     let abs = path.resolve(path_);
 
-    MPQ.execute('a', [this._path, abs, name]);
+    this.addCommand('a', [this._path, abs, name]);
 };
 
 MPQ.prototype.addDirectory = function(path_) {
@@ -28,25 +30,44 @@ MPQ.prototype.addDirectory = function(path_) {
     }
 };
 
+MPQ.prototype.addCommand = function(cmd, args) {
+    this._cmd.push(MPQ.buildCommand(cmd, args));
+};
+
+MPQ.prototype.flush = function() {
+    let cmdList = this._cmd.join('\n');
+    this._cmd = [];
+
+    MPQ.execute(cmdList);
+};
+
 MPQ.create = function(path_) {
     let abs = path.resolve(path_);
 
-    MPQ.execute('n', abs);
+    if(fs.existsSync(abs)) {
+        fs.unlinkSync(abs);
+    }
 
-    return new MPQ(abs);
+    return new MPQ(abs, [MPQ.buildCommand('n', abs)]);
 };
 
-MPQ.execute = function(cmd, args) {
+MPQ.buildCommand = function(cmd, args) {
     if(!Array.isArray(args)) {
         args = [args];
     }
 
-    let line = [cmd, args.join(' ')].join(' ');
-    let consoleCmd = _mpqPath('mpqe.exe') + ' /console script';
+    return [cmd, args.join(' ')].join(' ');
+};
 
-    fs.writeFileSync(_mpqPath('script'), line, {flag: 'w+'});
+MPQ.execute = function(commands) {
+    const scriptPath = _mpqPath('script');
+    const mpqePath = _mpqPath('mpqe.exe');
+
+    let consoleCmd = mpqePath + ' /console ' + scriptPath;
+
+    fs.writeFileSync(scriptPath, commands, {flag: 'w+'});
     exec.execSync(consoleCmd);
-    fs.unlinkSync(_mpqPath('script'));
+    fs.unlinkSync(scriptPath);
 };
 
 function _mpqPath(path_) {

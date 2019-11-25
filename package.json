@@ -2,7 +2,7 @@
     "name": "wc3_map",
     "version": "1.0.0",
     "dependencies": {
-        "@wowserhq/stormjs": "^0.3.0",
+        "fs-extra": "^8.1.0",
         "wc3maptranslator": "^2.0.0"
     }
 }

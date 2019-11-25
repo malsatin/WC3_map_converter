@@ -36,7 +36,7 @@ const
  * @return {Undefined}
  */
 function writeBufferToFile(warMapFile, buffer) {
-    const fullPathToWrite = Path.resolve('./data', warMapFile);
+    const fullPathToWrite = Path.resolve(warMapFile);
     let fd = fs.openSync(fullPathToWrite, 'w+');
 
     fs.writeSync(fd, buffer, 0, buffer.length);
