@@ -50,15 +50,22 @@ function dumpMap(map) {
     configs[WarFile.Entity.Doodad] = map.doodads;
     configs[WarFile.Entity.Terrain] = map.terrain;
     configs[WarFile.Entity.Unit] = map.units;
+    configs[WarFile.Other.Info] = map.info;
+    configs[WarFile.Other.String] = map.strings;
 
     let parsers = {};
     parsers[WarFile.Entity.Doodad] = Translator.Doodads.jsonToWar;
     parsers[WarFile.Entity.Terrain] = Translator.Terrain.jsonToWar;
     parsers[WarFile.Entity.Unit] = Translator.Units.jsonToWar;
+    parsers[WarFile.Other.Info] = Translator.Info.jsonToWar;
+    parsers[WarFile.Other.String] = Translator.Strings.jsonToWar;
 
     for(let name in configs) {
-        if(configs[name]) {
-            console.log(configs[name]);
+        var obj = configs[name];
+
+        if(obj && !_isEmptyArray(obj) && !_isEmptyObject(obj)) {
+            console.log(`${name} added to dump`);
+
             dump.addFile(name, _getBuffer(parsers[name](configs[name])));
         }
     }
@@ -74,6 +81,14 @@ function _getBuffer(translatorProto) {
     }
 
     return resp.buffer;
+}
+
+function _isEmptyArray(o) {
+    return Array.isArray(o) && o.length === 0;
+}
+
+function _isEmptyObject(o) {
+    return Object.keys(o).length === 0;
 }
 
 /**

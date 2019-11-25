@@ -12,7 +12,7 @@ const RawMap = require('./src/class/RawMap');
 
 async function mainLoop() {
     let input = Reader.readRaw(Constants.INPUT_FILE);
-    let rawMap = new RawMap();
+    let rawMap = new RawMap(Constants.MAP_NAME);
     rawMap.parseObjects(input);
 
     let wcMap = new WcMap(Constants.MAP_NAME);

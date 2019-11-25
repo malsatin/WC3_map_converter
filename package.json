@@ -3,6 +3,7 @@
     "version": "1.0.0",
     "dependencies": {
         "fs-extra": "^8.1.0",
-        "wc3maptranslator": "^2.0.0"
+        "wc3maptranslator": "^2.0.0",
+        "merge": "^1.2.1"
     }
 }
