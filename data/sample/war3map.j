@@ -107,7 +107,7 @@ endfunction
 //===========================================================================
 function main takes nothing returns nothing
     local weathereffect we
-    call SetCameraBounds(-1280.0 + GetCameraMargin(CAMERA_MARGIN_LEFT), -1536.0 + GetCameraMargin(CAMERA_MARGIN_BOTTOM), 1280.0 - GetCameraMargin(CAMERA_MARGIN_RIGHT), 1024.0 - GetCameraMargin(CAMERA_MARGIN_TOP), -1280.0 + GetCameraMargin(CAMERA_MARGIN_LEFT), 1024.0 - GetCameraMargin(CAMERA_MARGIN_TOP), 1280.0 - GetCameraMargin(CAMERA_MARGIN_RIGHT), -1536.0 + GetCameraMargin(CAMERA_MARGIN_BOTTOM))
+    call SetCameraBounds(-1920.0 + GetCameraMargin(CAMERA_MARGIN_LEFT), -1920.0 + GetCameraMargin(CAMERA_MARGIN_BOTTOM), 1920.0 - GetCameraMargin(CAMERA_MARGIN_RIGHT), 1920.0 - GetCameraMargin(CAMERA_MARGIN_TOP), -1920.0 + GetCameraMargin(CAMERA_MARGIN_LEFT), 1920.0 - GetCameraMargin(CAMERA_MARGIN_TOP), 1920.0 - GetCameraMargin(CAMERA_MARGIN_RIGHT), -1920.0 + GetCameraMargin(CAMERA_MARGIN_BOTTOM))
     call SetDayNightModels("Environment\\DNC\\DNCLordaeron\\DNCLordaeronTerrain\\DNCLordaeronTerrain.mdl", "Environment\\DNC\\DNCLordaeron\\DNCLordaeronUnit\\DNCLordaeronUnit.mdl")
     set we=AddWeatherEffect(Rect(- 2048.0, - 2048.0, 2048.0, 2048.0), '0000')
     call EnableWeatherEffect(we, true)

@@ -199,19 +199,19 @@ WcMap.prototype.setupTerrain = function() {
 };
 
 WcMap.prototype.addTmp = function() {
-    this.doodads.push({
-        id: 90,
-        type: UnitType.AshenvalTree,                           // type of tree - see lookup
-        variation: 0,                           // (optional) variation number
-        position: [0, 0, 0],              // x,y,z coords
-        angle: 0,                               // (optional) in radians
-        scale: [1, 1, 1],                       // x,y,z scaling factor - 1 is normal size
-        life: 100,                              // % health
-        flags: {
-            visible: true,
-            solid: true
-        }
-    });
+    // this.doodads.push({
+    //     id: 90,
+    //     type: UnitType.AshenvalTree,                           // type of tree - see lookup
+    //     variation: 0,                           // (optional) variation number
+    //     position: [0, 0, 0],              // x,y,z coords
+    //     angle: 0,                               // (optional) in radians
+    //     scale: [1, 1, 1],                       // x,y,z scaling factor - 1 is normal size
+    //     life: 100,                              // % health
+    //     flags: {
+    //         visible: true,
+    //         solid: true
+    //     }
+    // });
 
     this.units.push({
         id: 91,
@@ -249,7 +249,7 @@ WcMap.prototype.addBase = function(x, y) {
         }
     });
 
-    let unit = this._createUnit(this._getUnitPk(), UnitType.PlayerBase, x, y);
+    let unit = this._createUnit(UnitType.PlayerBase, x, y);
     unit.player = pk;
 
     this.units.push(unit);
@@ -260,7 +260,9 @@ WcMap.prototype.addGold = function(x, y) {
 };
 
 WcMap.prototype.addTree = function(x, y) {
-    // todo
+    let tree = this._createDoodad(UnitType.AshenvalTree, x, y);
+
+    this.doodads.push(tree);
 };
 
 WcMap.prototype.addWater = function(x, y) {
@@ -280,12 +282,17 @@ WcMap.prototype.addNeutrals = function(x, y) {
 };
 
 WcMap.prototype._setTile = function(x, y, tile) {
-    // todo
-    // this.terrain.tiles[y * this.size.width + x] = tile;
+    let {i, j} = this._returnTile({x, y});
+
+    i = Math.round(i / 2);
+    j = Math.round(j / 2);
+
+    this.terrain.tiles[i][j] = tile;
 };
 
-WcMap.prototype._createUnit = function(id, type, x, y) {
+WcMap.prototype._createUnit = function(type, x, y) {
     return {
+        "id": this._getUnitPk(),
         "hero": {"level": 0, "str": 0, "agi": 0, "int": 0},
         "inventory": [],
         "abilities": [],
@@ -300,7 +307,22 @@ WcMap.prototype._createUnit = function(id, type, x, y) {
         "gold": 0,
         "targetAcquisition": 0,
         "color": -1,
-        "id": id
+    }
+};
+
+WcMap.prototype._createDoodad = function(type, x, y) {
+    return {
+        "id": this._getDoodadPk(),
+        "type": type,
+        "variation": 1,
+        "position": [x, y, 0],
+        "angle": 0,
+        "scale": [1, 1, 1],
+        "flags": {
+            "visible": true,
+            "solid": true
+        },
+        "life": 100,
     }
 };
 
@@ -336,6 +358,10 @@ WcMap.prototype._getUnitPk = function() {
     return this.units.length;
 };
 
+WcMap.prototype._getDoodadPk = function() {
+    return this.doodads.length;
+};
+
 WcMap.prototype._getPlayerPk = function() {
     return this.info.players.length;
 };
@@ -351,6 +377,15 @@ WcMap.prototype._preparePosition = function(o) {
     let y = (o.y - offset) * Constants.TILE_SIZE;
 
     return {x, y};
+};
+
+WcMap.prototype._returnTile = function(o) {
+    let offset = this.wcMapSize;
+
+    let i = Math.round(o.x / Constants.TILE_SIZE + offset);
+    let j = Math.round(o.y / Constants.TILE_SIZE + offset);
+
+    return {i, j};
 };
 
 function _randInt(min, max) {
