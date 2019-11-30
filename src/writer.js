@@ -16,16 +16,18 @@ module.exports = {
 
 /**
  * @param {WcMap} mapObj
+ * @returns {String} - filename
  */
 function saveMap(mapObj) {
     let dump = dumpMap(mapObj);
 
-    saveDump(dump, mapObj.name);
+    return saveDump(dump, mapObj.name);
 }
 
 /**
  * @param {MapDump} dump
  * @param {String} mapName
+ * @returns {String} - filename
  */
 function saveDump(dump, mapName) {
     dump.init();
@@ -37,6 +39,8 @@ function saveDump(dump, mapName) {
     mpq.flush();
 
     dump.clear();
+
+    return mpq._path;
 }
 
 /**
@@ -69,6 +73,8 @@ function dumpMap(map) {
             dump.addFile(name, _getBuffer(parsers[name](configs[name])));
         }
     }
+
+    console.log('-----------------');
 
     return dump;
 }

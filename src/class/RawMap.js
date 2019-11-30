@@ -23,8 +23,8 @@ function RawMap() {
 RawMap.prototype.parseObjects = function(input) {
     input = input.trim();
 
-    //console.log(input);
     let lines = input.split('\n').map(l => l.trim());
+    lines = lines.reverse(); // normalize coordinates
 
     this.height = lines.length;
     this.width = lines[0].length;

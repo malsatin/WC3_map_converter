@@ -1,5 +1,9 @@
 "use strict";
 
+const fs = require('fs');
+const path = require('path');
+const argv = process.argv;
+
 const Constants = require('./src/constants');
 const LandGenerator = require('./src/land_generator');
 const Reader = require('./src/reader');
@@ -18,7 +22,19 @@ async function mainLoop() {
     let wcMap = new WcMap(Constants.MAP_NAME);
     wcMap.parse(rawMap);
 
-    Writer.saveMap(wcMap);
+    let resultPath = Writer.saveMap(wcMap);
+    console.log('-----------------');
+
+    if(argv.length > 2) {
+        let filename = path.basename(resultPath);
+        let newPath = path.resolve(argv[2], filename);
+
+        fs.renameSync(resultPath, newPath);
+
+        return `Map saved to ${newPath}`;
+    }
+
+    return `Map saved to ${resultPath}`;
 }
 
 mainLoop()

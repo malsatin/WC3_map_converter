@@ -1,19 +1,21 @@
 "use strict";
 
 const merge = require('merge');
+
 const Constants = require('../constants');
+const UnitType = require('./wc/UnitType');
 
 const DefaultInfo = {
-    "saves": 0,
-    "editorVersion": 0,
+    "saves": 1,
+    "editorVersion": 6059,
     "map": {
-        "name": "map name goes here",
-        "author": "chiefofgxbxl",
-        "description": "Just Another WarCraft III Map",
+        "name": "map name",
+        "author": "_",
+        "description": "WarCraft III Map",
         "recommendedPlayers": "Any",
         "playableArea": {
-            "width": 52,
-            "height": 52
+            "width": 32,
+            "height": 32,
         },
         "flags": {
             "hideMinimapInPreview": false,
@@ -28,7 +30,7 @@ const DefaultInfo = {
             "waterWavesOnCliffShores": true,
             "waterWavesOnRollingShores": true
         },
-        "mainTileType": "L"
+        "mainTileType": 'L'
     },
     "loadingScreen": {
         "background": -1,
@@ -44,53 +46,22 @@ const DefaultInfo = {
         "subtitle": ""
     },
     "fog": {
-        "type": 1,
+        "type": 0,
         "startHeight": 3000,
         "endHeight": 5000,
-        "density": 0,
-        "color": [0, 0, 0]
+        "density": 0.4,
+        "color": [0, 0, 0, 255]
     },
-    "globalWeather": "NONE",
-    "customSoundEnvironment": "",
-    "customLightEnv": "",
-    "water": [0, 0, 0],
+    "globalWeather": '0000',
+    "customSoundEnvironment": '',
+    "customLightEnv": '0',
+    "water": [255, 255, 255, 255],
     "camera": {
-        "bounds": [-3200, -3200, 3200, 3200, -3200, 3200, 3200, -3200],
+        "bounds": [-768, -1280, 768, 768, -768, 768, 768, -1280],
         "complements": [6, 6, 4, 8]
     },
-    "players": [
-        {
-            "type": 1,
-            "race": 1,
-            "playerNum": 0,
-            "name": "Frodo Baggins",
-            "startingPos": {"x": 2368, "y": 256},
-            "priorities": {
-                "low": 0,
-                "high": 0
-            }
-        },
-        {
-            "type": 2,
-            "race": 3,
-            "playerNum": 10,
-            "name": "Smeagul",
-            "startingPos": {"x": 2368, "y": 256}
-        }
-    ],
-    "forces": [
-        {
-            "name": "Force 1",
-            "players": [0],
-            "flags": {
-                "allied": false,
-                "alliedVictory": false,
-                "shareVision": false,
-                "shareUnitControl": false,
-                "shareAdvUnitControl": false
-            }
-        }
-    ]
+    "players": [],
+    "forces": [],
 };
 
 module.exports = WcMap;
@@ -114,45 +85,6 @@ function WcMap(name) {
     this.info = {};
     this.strings = {};
 
-    this.doodads = [
-        {
-            id: 0,
-            type: 'ATtr',                           // type of tree - see lookup
-            variation: 0,                           // (optional) variation number
-            position: [-2000, -2000, 100],              // x,y,z coords
-            angle: 0,                               // (optional) in radians
-            scale: [1, 1, 1],                       // x,y,z scaling factor - 1 is normal size
-            life: 100,                              // % health
-            flags: {
-                visible: true,
-                solid: true
-            }
-        }
-    ];
-
-    this.units = [
-        {
-            id: 1,
-            type: 'hfoo', // Unit type - lookup
-            position: [1000, 1000, 100], // x,y,z coords
-            rotation: 36, // in degrees
-            scale: [1, 1, 1],
-            player: 0, // belongs to player red
-            hitpoints: 210,
-            mana: 0,
-            gold: 0,
-            targetAcquisition: 0,
-            "hero": {
-                "level": 1,
-                "str": 1,
-                "agi": 1,
-                "int": 1
-            },
-            inventory: [],
-            abilities: []
-        }
-    ];
-
     //this.terrain = require('../../data/input/terrain.json');
 }
 
@@ -163,35 +95,36 @@ WcMap.prototype.parse = function(map) {
     this._raw = map;
 
     this.setupInfo();
-    this.setupTerrain();
+    //this.setupTerrain();
+    this.addTmp();
 
     for(let i in map.objects) {
         let v = map.objects[i];
-        let {x, y} = _preparePosition(map.getCords(i), this.size);
+        let {x, y} = this._preparePosition(map.getCords(i));
 
         switch(v) {
             case 'B':
                 this.addBase(x, y);
                 break;
-            case 'G':
-                this.addGold(x, y);
-                break;
-            case 'F':
-            case 'T':
-                this.addTree(x, y);
-                break;
-            case 'W':
-                //this.addWater(x, y);
-                break;
-            case 'H':
-                this.addHeroesShop(x, y);
-                break;
-            case 'I':
-                this.addItemsShop(x, y);
-                break;
-            case 'N':
-                this.addNeutrals(x, y);
-                break;
+            // case 'G':
+            //     this.addGold(x, y);
+            //     break;
+            // case 'F':
+            // case 'T':
+            //     this.addTree(x, y);
+            //     break;
+            // case 'W':
+            //     //this.addWater(x, y);
+            //     break;
+            // case 'H':
+            //     this.addHeroesShop(x, y);
+            //     break;
+            // case 'I':
+            //     this.addItemsShop(x, y);
+            //     break;
+            // case 'N':
+            //     this.addNeutrals(x, y);
+            //     break;
         }
     }
 };
@@ -202,16 +135,29 @@ WcMap.prototype.setupInfo = function() {
         height: this._raw.height
     };
 
+    let maxX = this.size.width * Constants.TILE_SIZE / 2;
+    let maxY = this.size.height * Constants.TILE_SIZE / 2;
+
     this.info = merge.recursive(DefaultInfo, {
         "map": {
             "name": this.name,
-            "author": "malsa",
-            "description": "Procedurally generated Warcraft III map",
-            "playableArea": this.size,
+            "author": "Malsa",
+            "description": "Procedurally generated WarСraft III map",
+            "playableArea": {
+                "width": this.size.width / 2,
+                "height": this.size.height / 2,
+            },
+        },
+        "camera": {
+            "bounds": [
+                -maxX, -maxY,
+                +maxX, +maxY,
+                -maxX, +maxY,
+                +maxX, -maxY
+            ],
+            "complements": [6, 6, 4, 8]
         },
     });
-    this.info["players"] = [];
-    this.info["forces"] = [];
 };
 
 WcMap.prototype.setupTerrain = function() {
@@ -249,6 +195,43 @@ WcMap.prototype.setupTerrain = function() {
     // this.terrain.tiles = tiles;
 };
 
+WcMap.prototype.addTmp = function() {
+    this.doodads.push({
+        id: 90,
+        type: UnitType.AshenvalTree,                           // type of tree - see lookup
+        variation: 0,                           // (optional) variation number
+        position: [0, 0, 0],              // x,y,z coords
+        angle: 0,                               // (optional) in radians
+        scale: [1, 1, 1],                       // x,y,z scaling factor - 1 is normal size
+        life: 100,                              // % health
+        flags: {
+            visible: true,
+            solid: true
+        }
+    });
+
+    this.units.push({
+        id: 91,
+        type: UnitType.Footman, // Unit type - lookup
+        position: [300, 300, 0], // x,y,z coords
+        rotation: 36, // in degrees
+        scale: [1, 1, 1],
+        player: 0, // belongs to player red
+        hitpoints: 210,
+        mana: 0,
+        gold: 0,
+        targetAcquisition: 0,
+        hero: {
+            "level": 1,
+            "str": 1,
+            "agi": 1,
+            "int": 1
+        },
+        inventory: [],
+        abilities: []
+    });
+};
+
 WcMap.prototype.addBase = function(x, y) {
     let pk = this._getPlayerPk();
 
@@ -263,7 +246,7 @@ WcMap.prototype.addBase = function(x, y) {
         }
     });
 
-    let unit = this._createUnit(this._getUnitPk(), "sloc", x, y);
+    let unit = this._createUnit(this._getUnitPk(), UnitType.PlayerBase, x, y);
     unit.player = pk;
 
     this.units.push(unit);
@@ -361,9 +344,12 @@ WcMap.prototype._getPlayerPk = function() {
     return this.info.players.length;
 };
 
-function _preparePosition(o, size) {
-    let x = (o.x - size.width) * Constants.TILE_SIZE;
-    let y = (o.y - size.height) * Constants.TILE_SIZE;
+WcMap.prototype._preparePosition = function(o) {
+    let offsetX = this.size.width / 2;
+    let offsetY = this.size.height / 2;
+
+    let x = (o.x - offsetX) * Constants.TILE_SIZE;
+    let y = (o.y - offsetY) * Constants.TILE_SIZE;
 
     return {x, y};
 }

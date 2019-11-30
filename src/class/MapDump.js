@@ -25,7 +25,15 @@ MapDump.prototype.init = function() {
 };
 
 MapDump.prototype.copySample = function(path_) {
-    fse.copySync(path_, this._path);
+    for(let f of fs.readdirSync(path_)) {
+        if(!fs.existsSync(path.resolve(this._path, f))) {
+            console.log(`Copied ${f} into tmp folder`);
+        }
+    }
+
+    fse.copySync(path_, this._path, {
+        overwrite: false,
+    });
 };
 
 /**
@@ -66,6 +74,8 @@ MapDump.prototype.dumpFile = function(name) {
     if(!(name in this._files)) {
         throw new Error(`Unknown filename ${name}`);
     }
+
+    console.log(`Added ${name} into tmp folder`);
 
     WriteHelper.Write(path.join(this._path, name), this._files[name]);
 };
