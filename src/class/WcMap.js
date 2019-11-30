@@ -74,18 +74,14 @@ module.exports = WcMap;
 function WcMap(name) {
     this.name = name;
 
-    this.size = {
-        width: 0,
-        height: 0,
-    };
+    this.mapSize = 0;
+    this.wcMapSize = 0;
 
     this.units = [];
     this.doodads = [];
     this.terrain = [];
     this.info = {};
     this.strings = {};
-
-    //this.terrain = require('../../data/input/terrain.json');
 }
 
 /**
@@ -95,7 +91,7 @@ WcMap.prototype.parse = function(map) {
     this._raw = map;
 
     this.setupInfo();
-    //this.setupTerrain();
+    this.setupTerrain();
     this.addTmp();
 
     for(let i in map.objects) {
@@ -106,37 +102,38 @@ WcMap.prototype.parse = function(map) {
             case 'B':
                 this.addBase(x, y);
                 break;
-            // case 'G':
-            //     this.addGold(x, y);
-            //     break;
-            // case 'F':
-            // case 'T':
-            //     this.addTree(x, y);
-            //     break;
-            // case 'W':
-            //     //this.addWater(x, y);
-            //     break;
-            // case 'H':
-            //     this.addHeroesShop(x, y);
-            //     break;
-            // case 'I':
-            //     this.addItemsShop(x, y);
-            //     break;
-            // case 'N':
-            //     this.addNeutrals(x, y);
-            //     break;
+            case 'G':
+                this.addGold(x, y);
+                break;
+            case 'F':
+            case 'T':
+                this.addTree(x, y);
+                break;
+            case 'W':
+                this.addWater(x, y);
+                break;
+            case 'H':
+                this.addHeroesShop(x, y);
+                break;
+            case 'I':
+                this.addItemsShop(x, y);
+                break;
+            case 'N':
+                this.addNeutrals(x, y);
+                break;
         }
     }
 };
 
 WcMap.prototype.setupInfo = function() {
-    this.size = {
-        width: this._raw.width,
-        height: this._raw.height
-    };
+    if(this._raw.width !== this._raw.height) {
+        throw new Error("Only square maps supported");
+    }
 
-    let maxX = this.size.width * Constants.TILE_SIZE / 2;
-    let maxY = this.size.height * Constants.TILE_SIZE / 2;
+    this.mapSize = this._raw.width;
+    this.wcMapSize = this.mapSize / 2;
+
+    let maxPos = this._getMaxPos();
 
     this.info = merge.recursive(DefaultInfo, {
         "map": {
@@ -144,16 +141,16 @@ WcMap.prototype.setupInfo = function() {
             "author": "Malsa",
             "description": "Procedurally generated WarСraft III map",
             "playableArea": {
-                "width": this.size.width / 2,
-                "height": this.size.height / 2,
+                "width": this.wcMapSize,
+                "height": this.wcMapSize,
             },
         },
         "camera": {
             "bounds": [
-                -maxX, -maxY,
-                +maxX, +maxY,
-                -maxX, +maxY,
-                +maxX, -maxY
+                -maxPos, -maxPos,
+                +maxPos, +maxPos,
+                -maxPos, +maxPos,
+                +maxPos, -maxPos
             ],
             "complements": [6, 6, 4, 8]
         },
@@ -177,22 +174,28 @@ WcMap.prototype.setupTerrain = function() {
             "CLgr"
         ],
         "map": {
-            "width": this.size.width,
-            "height": this.size.height,
+            "width": this.wcMapSize,
+            "height": this.wcMapSize,
             "offset": {
-                "x": this.size.width * Constants.TILE_SIZE,
-                "y": this.size.height * Constants.TILE_SIZE,
+                "x": -this._getMaxPos(),
+                "y": -this._getMaxPos(),
             }
         },
         "tiles": [],
     };
 
-    // let tiles = [];
-    // for(let i = 0; i < this.size.width * this.size.height; i++) {
-    //     tiles.push(this._createGroundTile());
-    // }
-    //
-    // this.terrain.tiles = tiles;
+    let tiles = [];
+    for(let i = 0; i < this.wcMapSize + 1; i++) {
+        let line = [];
+
+        for(let j = 0; j < this.wcMapSize + 1; j++) {
+            line.push(this._createGroundTile());
+        }
+
+        tiles.push(line);
+    }
+
+    this.terrain.tiles = tiles;
 };
 
 WcMap.prototype.addTmp = function() {
@@ -261,7 +264,7 @@ WcMap.prototype.addTree = function(x, y) {
 };
 
 WcMap.prototype.addWater = function(x, y) {
-    this.terrain.tiles[y * this.size.width + x] = this._createWaterTile();
+    this._setTile(x, y, this._createWaterTile());
 };
 
 WcMap.prototype.addHeroesShop = function(x, y) {
@@ -274,6 +277,11 @@ WcMap.prototype.addItemsShop = function(x, y) {
 
 WcMap.prototype.addNeutrals = function(x, y) {
     // todo
+};
+
+WcMap.prototype._setTile = function(x, y, tile) {
+    // todo
+    // this.terrain.tiles[y * this.size.width + x] = tile;
 };
 
 WcMap.prototype._createUnit = function(id, type, x, y) {
@@ -297,43 +305,31 @@ WcMap.prototype._createUnit = function(id, type, x, y) {
 };
 
 WcMap.prototype._createWaterTile = function() {
-    let pixels = [];
-
-    for(let i = 0; i < Constants.TILE_SIZE; i++) {
-        pixels.push({
-            "groundHeight": 8192,
-            "waterHeight": 8192,
-            "boundaryFlag": false,
-            "flags": 64,
-            "groundTexture": 0,
-            "groundVariation": 80,
-            "cliffVariation": 0,
-            "cliffTexture": 16,
-            "layerHeight": 1
-        });
+    return {
+        "groundHeight": 8192,
+        "waterHeight": 8192,
+        "boundaryFlag": false,
+        "flags": 64,
+        "groundTexture": 0,
+        "groundVariation": 8,
+        "cliffVariation": 4,
+        "cliffTexture": 16,
+        "layerHeight": 1
     }
-
-    return pixels;
 };
 
 WcMap.prototype._createGroundTile = function() {
-    let pixels = [];
-
-    for(let i = 0; i < Constants.TILE_SIZE; i++) {
-        pixels.push({
-            "groundHeight": 8192,
-            "waterHeight": 24576,
-            "boundaryFlag": true,
-            "flags": 0,
-            "groundTexture": 0,
-            "groundVariation": 0,
-            "cliffVariation": 0,
-            "cliffTexture": 240,
-            "layerHeight": 2
-        });
+    return {
+        "groundHeight": 8192,
+        "waterHeight": 8192,
+        "boundaryFlag": false,
+        "flags": 0,
+        "groundTexture": 0,
+        "groundVariation": 16,
+        "cliffVariation": 0,
+        "cliffTexture": 240,
+        "layerHeight": 2
     }
-
-    return pixels;
 };
 
 WcMap.prototype._getUnitPk = function() {
@@ -344,15 +340,18 @@ WcMap.prototype._getPlayerPk = function() {
     return this.info.players.length;
 };
 
-WcMap.prototype._preparePosition = function(o) {
-    let offsetX = this.size.width / 2;
-    let offsetY = this.size.height / 2;
+WcMap.prototype._getMaxPos = function() {
+    return this.wcMapSize * Constants.TILE_SIZE;
+};
 
-    let x = (o.x - offsetX) * Constants.TILE_SIZE;
-    let y = (o.y - offsetY) * Constants.TILE_SIZE;
+WcMap.prototype._preparePosition = function(o) {
+    let offset = this.wcMapSize;
+
+    let x = (o.x - offset) * Constants.TILE_SIZE;
+    let y = (o.y - offset) * Constants.TILE_SIZE;
 
     return {x, y};
-}
+};
 
 function _randInt(min, max) {
     return Math.ceil(Math.random() * (max - min) + min);
