@@ -108,15 +108,15 @@ endfunction
 function main takes nothing returns nothing
     local weathereffect we
     call SetCameraBounds(-1280.0 + GetCameraMargin(CAMERA_MARGIN_LEFT), -1536.0 + GetCameraMargin(CAMERA_MARGIN_BOTTOM), 1280.0 - GetCameraMargin(CAMERA_MARGIN_RIGHT), 1024.0 - GetCameraMargin(CAMERA_MARGIN_TOP), -1280.0 + GetCameraMargin(CAMERA_MARGIN_LEFT), 1024.0 - GetCameraMargin(CAMERA_MARGIN_TOP), 1280.0 - GetCameraMargin(CAMERA_MARGIN_RIGHT), -1536.0 + GetCameraMargin(CAMERA_MARGIN_BOTTOM))
-    //call SetDayNightModels("Environment\\DNC\\DNCLordaeron\\DNCLordaeronTerrain\\DNCLordaeronTerrain.mdl", "Environment\\DNC\\DNCLordaeron\\DNCLordaeronUnit\\DNCLordaeronUnit.mdl")
+    call SetDayNightModels("Environment\\DNC\\DNCLordaeron\\DNCLordaeronTerrain\\DNCLordaeronTerrain.mdl", "Environment\\DNC\\DNCLordaeron\\DNCLordaeronUnit\\DNCLordaeronUnit.mdl")
     set we=AddWeatherEffect(Rect(- 2048.0, - 2048.0, 2048.0, 2048.0), '0000')
     call EnableWeatherEffect(we, true)
     call NewSoundEnvironment("Default")
     call SetAmbientDaySound("LordaeronSummerDay")
     call SetAmbientNightSound("LordaeronSummerNight")
     call SetMapMusic("Music", true, 0)
-    //call CreateAllUnits()
-    //call InitBlizzard()
+    call CreateAllUnits()
+    call InitBlizzard()
 
 
     call InitGlobals()
@@ -136,8 +136,8 @@ function config takes nothing returns nothing
     call SetTeams(2)
     call SetGamePlacement(MAP_PLACEMENT_USE_MAP_SETTINGS)
 
-    //call DefineStartLocation(0, - 2240.0, - 3648.0)
-    //call DefineStartLocation(1, - 1088.0, - 1344.0)
+    call DefineStartLocation(0, - 2240.0, - 3648.0)
+    call DefineStartLocation(1, - 1088.0, - 1344.0)
 
     // Player setup
     call InitCustomPlayerSlots()
