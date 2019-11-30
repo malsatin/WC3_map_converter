@@ -92,7 +92,6 @@ WcMap.prototype.parse = function(map) {
 
     this.setupInfo();
     this.setupTerrain();
-    this.addTmp();
 
     for(let i in map.objects) {
         let v = map.objects[i];
@@ -198,43 +197,6 @@ WcMap.prototype.setupTerrain = function() {
     this.terrain.tiles = tiles;
 };
 
-WcMap.prototype.addTmp = function() {
-    // this.doodads.push({
-    //     id: 90,
-    //     type: UnitType.AshenvalTree,                           // type of tree - see lookup
-    //     variation: 0,                           // (optional) variation number
-    //     position: [0, 0, 0],              // x,y,z coords
-    //     angle: 0,                               // (optional) in radians
-    //     scale: [1, 1, 1],                       // x,y,z scaling factor - 1 is normal size
-    //     life: 100,                              // % health
-    //     flags: {
-    //         visible: true,
-    //         solid: true
-    //     }
-    // });
-
-    this.units.push({
-        id: 91,
-        type: UnitType.Footman, // Unit type - lookup
-        position: [300, 300, 0], // x,y,z coords
-        rotation: 36, // in degrees
-        scale: [1, 1, 1],
-        player: 0, // belongs to player red
-        hitpoints: 210,
-        mana: 0,
-        gold: 0,
-        targetAcquisition: 0,
-        hero: {
-            "level": 1,
-            "str": 1,
-            "agi": 1,
-            "int": 1
-        },
-        inventory: [],
-        abilities: []
-    });
-};
-
 WcMap.prototype.addBase = function(x, y) {
     let pk = this._getPlayerPk();
 
@@ -262,6 +224,9 @@ WcMap.prototype.addGold = function(x, y) {
 WcMap.prototype.addTree = function(x, y) {
     let tree = this._createDoodad(UnitType.AshenvalTree, x, y);
 
+    let scale = _randFloat(0.7, 1.2);
+    tree.scale = [scale, scale, scale];
+
     this.doodads.push(tree);
 };
 
@@ -287,7 +252,7 @@ WcMap.prototype._setTile = function(x, y, tile) {
     i = Math.round(i / 2);
     j = Math.round(j / 2);
 
-    this.terrain.tiles[i][j] = tile;
+    this.terrain.tiles[this.wcMapSize - i][j] = tile;
 };
 
 WcMap.prototype._createUnit = function(type, x, y) {
@@ -332,9 +297,9 @@ WcMap.prototype._createWaterTile = function() {
         "waterHeight": 8192,
         "boundaryFlag": false,
         "flags": 64,
-        "groundTexture": 0,
-        "groundVariation": 8,
-        "cliffVariation": 4,
+        "groundTexture": _randInt(0, 1),
+        "groundVariation": _randArray([40, 48, 64]),
+        "cliffVariation": _randArray([0, 4, 5]),
         "cliffTexture": 16,
         "layerHeight": 1
     }
@@ -346,9 +311,9 @@ WcMap.prototype._createGroundTile = function() {
         "waterHeight": 8192,
         "boundaryFlag": false,
         "flags": 0,
-        "groundTexture": 0,
-        "groundVariation": 16,
-        "cliffVariation": 0,
+        "groundTexture": _randArray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2]),
+        "groundVariation": _randArray([0, 0, 0, 0, 0, 0, 8, 16, 20]),
+        "cliffVariation": _randArray([0, 0, 4, 5]),
         "cliffTexture": 240,
         "layerHeight": 2
     }
@@ -382,12 +347,20 @@ WcMap.prototype._preparePosition = function(o) {
 WcMap.prototype._returnTile = function(o) {
     let offset = this.wcMapSize;
 
-    let i = Math.round(o.x / Constants.TILE_SIZE + offset);
-    let j = Math.round(o.y / Constants.TILE_SIZE + offset);
+    let j = Math.round(o.x / Constants.TILE_SIZE + offset);
+    let i = Math.round(o.y / Constants.TILE_SIZE + offset);
 
     return {i, j};
 };
 
 function _randInt(min, max) {
     return Math.ceil(Math.random() * (max - min) + min);
+}
+
+function _randFloat(min, max) {
+    return Math.random() * (max - min) + min;
+}
+
+function _randArray(arr) {
+    return arr[_randInt(0, arr.length - 1)];
 }

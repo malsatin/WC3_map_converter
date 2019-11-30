@@ -1,4 +1,6 @@
 globals
+    // Generated
+trigger gg_trg___________________________u= null
 
 
 //JASSHelper struct globals:
@@ -40,20 +42,11 @@ endfunction
 //***************************************************************************
 
 //===========================================================================
-function CreateUnitsForPlayer0 takes nothing returns nothing
-    local player p= Player(0)
-    local unit u
-    local integer unitID
-    local trigger t
-    local real life
+function CreateNeutralHostile takes nothing returns nothing
+endfunction
 
-    set u=CreateUnit(p, 'hfoo', 300.0, 300.0, 36.000)
-    call SetHeroStr(u, 1, true)
-    call SetHeroAgi(u, 1, true)
-    call SetHeroInt(u, 1, true)
-    set life=GetUnitState(u, UNIT_STATE_LIFE)
-    call SetUnitState(u, UNIT_STATE_LIFE, 2.10 * life)
-    call SetUnitAcquireRange(u, 0.0)
+//===========================================================================
+function CreateNeutralPassiveBuildings takes nothing returns nothing
 endfunction
 
 //===========================================================================
@@ -62,13 +55,54 @@ endfunction
 
 //===========================================================================
 function CreatePlayerUnits takes nothing returns nothing
-    call CreateUnitsForPlayer0()
 endfunction
 
 //===========================================================================
 function CreateAllUnits takes nothing returns nothing
+    call CreateNeutralPassiveBuildings()
     call CreatePlayerBuildings()
-    call CreateUnitsForPlayer0() // INLINED!!
+    call CreateNeutralHostile()
+    call CreatePlayerUnits()
+endfunction
+
+//***************************************************************************
+//*
+//*  Triggers
+//*
+//***************************************************************************
+
+//===========================================================================
+// Trigger: Иниц. сражения
+//
+// Инициализация стандартного режима сражения для всех игроков
+//===========================================================================
+function Trig___________________________u_Actions takes nothing returns nothing
+    call FogMaskEnableOff()
+    call FogEnableOff()
+    call MeleeStartingVisibility()
+    call MeleeStartingHeroLimit()
+    call MeleeGrantHeroItems()
+    call MeleeStartingResources()
+    call MeleeClearExcessUnits()
+    call MeleeStartingUnits()
+    call MeleeStartingAI()
+    call MeleeInitVictoryDefeat()
+endfunction
+
+//===========================================================================
+function InitTrig___________________________u takes nothing returns nothing
+    set gg_trg___________________________u=CreateTrigger()
+    call TriggerAddAction(gg_trg___________________________u, function Trig___________________________u_Actions)
+endfunction
+
+//===========================================================================
+function InitCustomTriggers takes nothing returns nothing
+    call InitTrig___________________________u()
+endfunction
+
+//===========================================================================
+function RunInitializationTriggers takes nothing returns nothing
+    call ConditionalTriggerExecute(gg_trg___________________________u)
 endfunction
 
 //***************************************************************************
@@ -96,6 +130,9 @@ function InitCustomPlayerSlots takes nothing returns nothing
 endfunction
 
 function InitCustomTeams takes nothing returns nothing
+    // Force: Клан 1
+    //call SetPlayerTeam(Player(0), 0)
+
 endfunction
 
 //***************************************************************************
@@ -120,6 +157,8 @@ function main takes nothing returns nothing
 
 
     call InitGlobals()
+    call InitTrig___________________________u() // INLINED!!
+    call ConditionalTriggerExecute(gg_trg___________________________u) // INLINED!!
 
 endfunction
 
