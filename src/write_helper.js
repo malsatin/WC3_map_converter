@@ -24,7 +24,8 @@ const
         Other: {
             Import:       'war3map.imp',
             Info:         'war3map.w3i',
-            String:       'war3map.wts'
+            String:       'war3map.wts',
+            Jass:         'war3map.j', // not supported by wc3maptranslator
         }
     };
 

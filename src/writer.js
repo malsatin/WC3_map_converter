@@ -65,7 +65,7 @@ function dumpMap(map) {
     parsers[WarFile.Other.String] = Translator.Strings.jsonToWar;
 
     for(let name in configs) {
-        var obj = configs[name];
+        let obj = configs[name];
 
         if(obj && !_isEmptyArray(obj) && !_isEmptyObject(obj)) {
             console.log(`${name} added to dump`);

@@ -1,9 +1,12 @@
 {
-    "name": "wc3_map",
-    "version": "1.0.0",
+    "name": "wc3_map_translator",
+    "author": "Malsa",
+    "description": "Creates WC3 playable map file from provided text prototype",
+    "version": "0.1.0",
     "dependencies": {
+        "merge": "^1.2.1",
         "fs-extra": "^8.1.0",
-        "wc3maptranslator": "^2.0.0",
-        "merge": "^1.2.1"
+        "handlebars": "^4.5.3",
+        "wc3maptranslator": "^2.0.0"
     }
 }

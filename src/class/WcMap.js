@@ -2,9 +2,11 @@
 
 const merge = require('merge');
 
-const DefaultObjects = require('./wc/DefaultObjects');
-const MapConfig = require('./wc/MapConfig');
-const UnitType = require('./wc/UnitType');
+const Rand = require('./Random');
+const DefaultObjects = require('../wc/DefaultObjects');
+const MapConfig = require('../wc/MapConfig');
+const UnitType = require('../wc/UnitType');
+const JassHelper = require('../jass/JassWrapper');
 
 module.exports = WcMap;
 
@@ -24,6 +26,7 @@ function WcMap(name) {
     this.terrain = [];
     this.info = {};
     this.strings = {};
+    this.jass = new JassHelper();
 }
 
 /**
@@ -97,6 +100,11 @@ WcMap.prototype.setupInfo = function() {
         },
     });
 
+    this.strings = {
+        1: this.info.map.name,
+        2: this.info.map.description,
+    };
+
     // todo: setup camera bounds in JASS
     // todo: add trigger strings to JASS
 };
@@ -151,18 +159,18 @@ WcMap.prototype.addGold = function(x, y) {
 };
 
 WcMap.prototype.addTree = function(x, y) {
-    let treeType = _randArray([UnitType.FelwoodTree, UnitType.AshenvalTree]);
+    let treeType = Rand.array([UnitType.FelwoodTree, UnitType.AshenvalTree]);
 
     let tree = this._createDoodad(treeType, x, y);
 
-    let scale = _randFloat(0.7, 1.2);
+    let scale = Rand.float(0.7, 1.2);
     tree.scale = [scale, scale, scale];
 
     this.doodads.push(tree);
 };
 
 WcMap.prototype.addWater = function(x, y) {
-    let tile = this._createWaterTile(_randBool());
+    let tile = this._createWaterTile(Rand.bool());
 
     this._setTile(x, y, tile);
 };
@@ -184,7 +192,7 @@ WcMap.prototype.addItemsShop = function(x, y) {
 };
 
 WcMap.prototype.addNeutrals = function(x, y) {
-    let unitType = _randArray([UnitType.TrollRegular, UnitType.TrollBerserk, UnitType.TrollShaman, UnitType.TrollBoss]);
+    let unitType = Rand.array([UnitType.TrollRegular, UnitType.TrollBerserk, UnitType.TrollShaman, UnitType.TrollBoss]);
 
     let unit = this._createUnit(unitType, x, y);
 
@@ -205,7 +213,7 @@ WcMap.prototype._setTile = function(x, y, tile) {
 WcMap.prototype._createPlayer = function(id, x, y) {
     return {
         "type": id === 0 ? 1 : 2,
-        "race": _randInt(1, 4),
+        "race": Rand.int(1, 4),
         "playerNum": id,
         "name": "Player " + id,
         "startingPos": {
@@ -259,9 +267,9 @@ WcMap.prototype._createWaterTile = function(deep = false) {
         "waterHeight": 8192,
         "boundaryFlag": false,
         "flags": 64,
-        "groundTexture": _randInt(0, 2),
-        "groundVariation": _randArray([40, 48, 64, 72]),
-        "cliffVariation": _randArray([0, 4, 5]),
+        "groundTexture": Rand.int(0, 2),
+        "groundVariation": Rand.array([40, 48, 64, 72]),
+        "cliffVariation": Rand.array([0, 4, 5]),
         "cliffTexture": ct,
         "layerHeight": deep ? 0 : 1
     }
@@ -275,9 +283,9 @@ WcMap.prototype._createGroundTile = function() {
         "waterHeight": 8192,
         "boundaryFlag": false,
         "flags": 0,
-        "groundTexture": _randProb({0: 0.95, 1: 0.03, 2: 0.05}),
-        "groundVariation": _randProb({0: 0.70, 8: 0.10, 16: 0.10, 20: 0.10}),
-        "cliffVariation": _randProb({0: 0.70, 4: 0.15, 5: 0.15}),
+        "groundTexture": Rand.prob({0: 0.95, 1: 0.03, 2: 0.05}),
+        "groundVariation": Rand.prob({0: 0.70, 8: 0.10, 16: 0.10, 20: 0.10}),
+        "cliffVariation": Rand.prob({0: 0.70, 4: 0.15, 5: 0.15}),
         "cliffTexture": ct,
         "layerHeight": 2
     }
@@ -316,37 +324,3 @@ WcMap.prototype._returnTile = function(o) {
 
     return {i, j};
 };
-
-function _randInt(min, max) {
-    return Math.ceil(_randFloat(min, max));
-}
-
-function _randFloat(min, max) {
-    return Math.random() * (max - min) + min;
-}
-
-function _randBool() {
-    return Math.random() > 0.5;
-}
-
-function _randArray(arr) {
-    let rand = Math.floor(Math.random() * arr.length);
-
-    return arr[rand];
-}
-
-function _randProb(obj) {
-    let rnd = Math.random();
-    let s = 0;
-
-    for(let k in obj) {
-        let v = obj[k];
-
-        s += v;
-        if(rnd < s) {
-            return k;
-        }
-    }
-
-    return obj[Object.keys(obj)[-1]];
-}
