@@ -4,8 +4,18 @@
  * @type {Enumerator}
  */
 module.exports = {
-    Footman: 'hfoo',
     AshenvalTree: 'ATtr',
+    FelwoodTree: 'CTtr',
     PlayerBase: 'sloc',
+
+    Footman: 'hfoo',
+    TrollRegular: 'nftr',
+    TrollBerserk: 'nftb',
+    TrollShaman: 'nfsh',
+    TrollBoss: 'nftk',
+
+    GoldMine: 'ngol',
+    HeroShop: 'ntav',
+    ItemShop: 'ngme',
 };
 

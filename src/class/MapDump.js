@@ -24,7 +24,7 @@ MapDump.prototype.init = function() {
     fs.mkdirSync(this._path);
 };
 
-MapDump.prototype.copySample = function(path_) {
+MapDump.prototype.copyPlaceholders = function(path_) {
     for(let f of fs.readdirSync(path_)) {
         if(!fs.existsSync(path.resolve(this._path, f))) {
             console.log(`Copied ${f} into tmp folder`);

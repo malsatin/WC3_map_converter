@@ -2,67 +2,9 @@
 
 const merge = require('merge');
 
-const Constants = require('../constants');
+const DefaultObjects = require('./wc/DefaultObjects');
+const MapConfig = require('./wc/MapConfig');
 const UnitType = require('./wc/UnitType');
-
-const DefaultInfo = {
-    "saves": 1,
-    "editorVersion": 6059,
-    "map": {
-        "name": "map name",
-        "author": "_",
-        "description": "WarCraft III Map",
-        "recommendedPlayers": "Any",
-        "playableArea": {
-            "width": 32,
-            "height": 32,
-        },
-        "flags": {
-            "hideMinimapInPreview": false,
-            "modifyAllyPriorities": false,
-            "isMeleeMap": false,
-            "maskedPartiallyVisible": true,
-            "fixedPlayerSetting": false,
-            "useCustomForces": false,
-            "useCustomTechtree": false,
-            "useCustomAbilities": false,
-            "useCustomUpgrades": false,
-            "waterWavesOnCliffShores": true,
-            "waterWavesOnRollingShores": true
-        },
-        "mainTileType": 'L'
-    },
-    "loadingScreen": {
-        "background": -1,
-        "path": "",
-        "text": "",
-        "title": "",
-        "subtitle": ""
-    },
-    "prologue": {
-        "path": "",
-        "text": "",
-        "title": "",
-        "subtitle": ""
-    },
-    "fog": {
-        "type": 0,
-        "startHeight": 3000,
-        "endHeight": 5000,
-        "density": 0.4,
-        "color": [0, 0, 0, 255]
-    },
-    "globalWeather": '0000',
-    "customSoundEnvironment": '',
-    "customLightEnv": '0',
-    "water": [255, 255, 255, 255],
-    "camera": {
-        "bounds": [-768, -1280, 768, 768, -768, 768, 768, -1280],
-        "complements": [6, 6, 4, 8]
-    },
-    "players": [],
-    "forces": [],
-};
 
 module.exports = WcMap;
 
@@ -134,7 +76,7 @@ WcMap.prototype.setupInfo = function() {
 
     let maxPos = this._getMaxPos();
 
-    this.info = merge.recursive(DefaultInfo, {
+    this.info = merge.recursive(DefaultObjects.Info, {
         "map": {
             "name": this.name,
             "author": "Malsa",
@@ -154,24 +96,13 @@ WcMap.prototype.setupInfo = function() {
             "complements": [6, 6, 4, 8]
         },
     });
+
+    // todo: setup camera bounds in JASS
+    // todo: add trigger strings to JASS
 };
 
 WcMap.prototype.setupTerrain = function() {
-    this.terrain = {
-        "tileset": "L",
-        "customtileset": false,
-        "tilepalette": [
-            "Ldrt",
-            "Ldro",
-            "Ldrg",
-            "Lrok",
-            "Lgrs",
-            "Lgrd"
-        ],
-        "clifftilepalette": [
-            "CLdi",
-            "CLgr"
-        ],
+    this.terrain = merge.recursive(DefaultObjects.Terrain, {
         "map": {
             "width": this.wcMapSize,
             "height": this.wcMapSize,
@@ -180,8 +111,7 @@ WcMap.prototype.setupTerrain = function() {
                 "y": -this._getMaxPos(),
             }
         },
-        "tiles": [],
-    };
+    });
 
     let tiles = [];
     for(let i = 0; i < this.wcMapSize + 1; i++) {
@@ -199,30 +129,31 @@ WcMap.prototype.setupTerrain = function() {
 
 WcMap.prototype.addBase = function(x, y) {
     let pk = this._getPlayerPk();
+    let player = this._createPlayer(pk, x, y);
 
-    this.info.players.push({
-        "type": pk === 0 ? 1 : 2,
-        "race": _randInt(1, 4),
-        "playerNum": pk,
-        "name": "Player " + pk,
-        "startingPos": {
-            "x": x,
-            "y": y,
-        }
-    });
+    this.info.players.push(player);
 
     let unit = this._createUnit(UnitType.PlayerBase, x, y);
     unit.player = pk;
 
     this.units.push(unit);
+
+    // todo: add user info to JASS
 };
 
 WcMap.prototype.addGold = function(x, y) {
-    // todo
+    let unit = this._createUnit(UnitType.GoldMine, x, y);
+    unit.gold = 10000;
+
+    this.units.push(unit);
+
+    // todo: add passive building to JASS
 };
 
 WcMap.prototype.addTree = function(x, y) {
-    let tree = this._createDoodad(UnitType.AshenvalTree, x, y);
+    let treeType = _randArray([UnitType.FelwoodTree, UnitType.AshenvalTree]);
+
+    let tree = this._createDoodad(treeType, x, y);
 
     let scale = _randFloat(0.7, 1.2);
     tree.scale = [scale, scale, scale];
@@ -231,19 +162,35 @@ WcMap.prototype.addTree = function(x, y) {
 };
 
 WcMap.prototype.addWater = function(x, y) {
-    this._setTile(x, y, this._createWaterTile());
+    let tile = this._createWaterTile(_randBool());
+
+    this._setTile(x, y, tile);
 };
 
 WcMap.prototype.addHeroesShop = function(x, y) {
-    // todo
+    let unit = this._createUnit(UnitType.HeroShop, x, y);
+
+    this.units.push(unit);
+
+    // todo: add passive building to JASS
 };
 
 WcMap.prototype.addItemsShop = function(x, y) {
-    // todo
+    let unit = this._createUnit(UnitType.ItemShop, x, y);
+
+    this.units.push(unit);
+
+    // todo: add passive building to JASS
 };
 
 WcMap.prototype.addNeutrals = function(x, y) {
-    // todo
+    let unitType = _randArray([UnitType.TrollRegular, UnitType.TrollBerserk, UnitType.TrollShaman, UnitType.TrollBoss]);
+
+    let unit = this._createUnit(unitType, x, y);
+
+    this.units.push(unit);
+
+    // todo: add passive hostile to JASS
 };
 
 WcMap.prototype._setTile = function(x, y, tile) {
@@ -253,6 +200,19 @@ WcMap.prototype._setTile = function(x, y, tile) {
     j = Math.round(j / 2);
 
     this.terrain.tiles[this.wcMapSize - i][j] = tile;
+};
+
+WcMap.prototype._createPlayer = function(id, x, y) {
+    return {
+        "type": id === 0 ? 1 : 2,
+        "race": _randInt(1, 4),
+        "playerNum": id,
+        "name": "Player " + id,
+        "startingPos": {
+            "x": x,
+            "y": y,
+        }
+    };
 };
 
 WcMap.prototype._createUnit = function(type, x, y) {
@@ -266,7 +226,7 @@ WcMap.prototype._createUnit = function(type, x, y) {
         "position": [x, y, 0],
         "rotation": 0,
         "scale": [1, 1, 1],
-        "player": 0,
+        "player": 15,
         "hitpoints": 0,
         "mana": 0,
         "gold": 0,
@@ -291,30 +251,34 @@ WcMap.prototype._createDoodad = function(type, x, y) {
     }
 };
 
-WcMap.prototype._createWaterTile = function() {
+WcMap.prototype._createWaterTile = function(deep = false) {
+    let ct = MapConfig.CLIFF_GRASS ? 16 : 0;
+
     return {
         "groundHeight": 8192,
         "waterHeight": 8192,
         "boundaryFlag": false,
         "flags": 64,
-        "groundTexture": _randInt(0, 1),
-        "groundVariation": _randArray([40, 48, 64]),
+        "groundTexture": _randInt(0, 2),
+        "groundVariation": _randArray([40, 48, 64, 72]),
         "cliffVariation": _randArray([0, 4, 5]),
-        "cliffTexture": 16,
-        "layerHeight": 1
+        "cliffTexture": ct,
+        "layerHeight": deep ? 0 : 1
     }
 };
 
 WcMap.prototype._createGroundTile = function() {
+    let ct = MapConfig.CLIFF_GRASS ? 240 : 0;
+
     return {
         "groundHeight": 8192,
         "waterHeight": 8192,
         "boundaryFlag": false,
         "flags": 0,
-        "groundTexture": _randArray([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2]),
-        "groundVariation": _randArray([0, 0, 0, 0, 0, 0, 8, 16, 20]),
-        "cliffVariation": _randArray([0, 0, 4, 5]),
-        "cliffTexture": 240,
+        "groundTexture": _randProb({0: 0.95, 1: 0.03, 2: 0.05}),
+        "groundVariation": _randProb({0: 0.70, 8: 0.10, 16: 0.10, 20: 0.10}),
+        "cliffVariation": _randProb({0: 0.70, 4: 0.15, 5: 0.15}),
+        "cliffTexture": ct,
         "layerHeight": 2
     }
 };
@@ -332,14 +296,14 @@ WcMap.prototype._getPlayerPk = function() {
 };
 
 WcMap.prototype._getMaxPos = function() {
-    return this.wcMapSize * Constants.TILE_SIZE;
+    return this.wcMapSize * MapConfig.TILE_SIZE;
 };
 
 WcMap.prototype._preparePosition = function(o) {
     let offset = this.wcMapSize;
 
-    let x = (o.x - offset) * Constants.TILE_SIZE;
-    let y = (o.y - offset) * Constants.TILE_SIZE;
+    let x = (o.x - offset) * MapConfig.TILE_SIZE;
+    let y = (o.y - offset) * MapConfig.TILE_SIZE;
 
     return {x, y};
 };
@@ -347,20 +311,42 @@ WcMap.prototype._preparePosition = function(o) {
 WcMap.prototype._returnTile = function(o) {
     let offset = this.wcMapSize;
 
-    let j = Math.round(o.x / Constants.TILE_SIZE + offset);
-    let i = Math.round(o.y / Constants.TILE_SIZE + offset);
+    let j = Math.round(o.x / MapConfig.TILE_SIZE + offset);
+    let i = Math.round(o.y / MapConfig.TILE_SIZE + offset);
 
     return {i, j};
 };
 
 function _randInt(min, max) {
-    return Math.ceil(Math.random() * (max - min) + min);
+    return Math.ceil(_randFloat(min, max));
 }
 
 function _randFloat(min, max) {
     return Math.random() * (max - min) + min;
 }
 
+function _randBool() {
+    return Math.random() > 0.5;
+}
+
 function _randArray(arr) {
-    return arr[_randInt(0, arr.length - 1)];
+    let rand = Math.floor(Math.random() * arr.length);
+
+    return arr[rand];
+}
+
+function _randProb(obj) {
+    let rnd = Math.random();
+    let s = 0;
+
+    for(let k in obj) {
+        let v = obj[k];
+
+        s += v;
+        if(rnd < s) {
+            return k;
+        }
+    }
+
+    return obj[Object.keys(obj)[-1]];
 }

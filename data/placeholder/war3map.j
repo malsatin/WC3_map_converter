@@ -43,10 +43,24 @@ endfunction
 
 //===========================================================================
 function CreateNeutralHostile takes nothing returns nothing
+    local player p= Player(PLAYER_NEUTRAL_PASSIVE)
+    local unit u
+    local integer unitID
+    local trigger t
+    local real life
+
+    // todo
 endfunction
 
 //===========================================================================
 function CreateNeutralPassiveBuildings takes nothing returns nothing
+    local player p= Player(PLAYER_NEUTRAL_PASSIVE)
+    local unit u
+    local integer unitID
+    local trigger t
+    local real life
+
+    // todo
 endfunction
 
 //===========================================================================
@@ -60,8 +74,9 @@ endfunction
 //===========================================================================
 function CreateAllUnits takes nothing returns nothing
     call CreateNeutralPassiveBuildings()
-    call CreatePlayerBuildings()
     call CreateNeutralHostile()
+
+    call CreatePlayerBuildings()
     call CreatePlayerUnits()
 endfunction
 
@@ -79,6 +94,7 @@ endfunction
 function Trig___________________________u_Actions takes nothing returns nothing
     call FogMaskEnableOff()
     call FogEnableOff()
+
     call MeleeStartingVisibility()
     call MeleeStartingHeroLimit()
     call MeleeGrantHeroItems()
@@ -113,6 +129,7 @@ endfunction
 
 function InitCustomPlayerSlots takes nothing returns nothing
 
+    // todo
     // Player 0
     call SetPlayerStartLocation(Player(0), 0)
     call SetPlayerColor(Player(0), ConvertPlayerColor(0))
@@ -130,9 +147,6 @@ function InitCustomPlayerSlots takes nothing returns nothing
 endfunction
 
 function InitCustomTeams takes nothing returns nothing
-    // Force: Клан 1
-    //call SetPlayerTeam(Player(0), 0)
-
 endfunction
 
 //***************************************************************************
@@ -143,11 +157,14 @@ endfunction
 
 //===========================================================================
 function main takes nothing returns nothing
-    local weathereffect we
+    // todo
     call SetCameraBounds(-1920.0 + GetCameraMargin(CAMERA_MARGIN_LEFT), -1920.0 + GetCameraMargin(CAMERA_MARGIN_BOTTOM), 1920.0 - GetCameraMargin(CAMERA_MARGIN_RIGHT), 1920.0 - GetCameraMargin(CAMERA_MARGIN_TOP), -1920.0 + GetCameraMargin(CAMERA_MARGIN_LEFT), 1920.0 - GetCameraMargin(CAMERA_MARGIN_TOP), 1920.0 - GetCameraMargin(CAMERA_MARGIN_RIGHT), -1920.0 + GetCameraMargin(CAMERA_MARGIN_BOTTOM))
     call SetDayNightModels("Environment\\DNC\\DNCLordaeron\\DNCLordaeronTerrain\\DNCLordaeronTerrain.mdl", "Environment\\DNC\\DNCLordaeron\\DNCLordaeronUnit\\DNCLordaeronUnit.mdl")
+
+    local weathereffect we
     set we=AddWeatherEffect(Rect(- 2048.0, - 2048.0, 2048.0, 2048.0), '0000')
     call EnableWeatherEffect(we, true)
+
     call NewSoundEnvironment("Default")
     call SetAmbientDaySound("LordaeronSummerDay")
     call SetAmbientNightSound("LordaeronSummerNight")
@@ -169,17 +186,19 @@ endfunction
 //***************************************************************************
 
 function config takes nothing returns nothing
-    call SetMapName("TRIGSTR_003")
-    call SetMapDescription("TRIGSTR_005")
+    call SetMapName("TRIGSTR_001")
+    call SetMapDescription("TRIGSTR_003")
     call SetPlayers(2)
     call SetTeams(2)
     call SetGamePlacement(MAP_PLACEMENT_USE_MAP_SETTINGS)
 
+    // todo
     call DefineStartLocation(0, - 2240.0, - 3648.0)
     call DefineStartLocation(1, - 1088.0, - 1344.0)
 
     // Player setup
     call InitCustomPlayerSlots()
+    // todo
     call SetPlayerSlotAvailable(Player(0), MAP_CONTROL_USER)
     call SetPlayerSlotAvailable(Player(1), MAP_CONTROL_COMPUTER)
     call InitGenericPlayerSlots()

@@ -31,7 +31,7 @@ function saveMap(mapObj) {
  */
 function saveDump(dump, mapName) {
     dump.init();
-    dump.copySample(_samplePath());
+    dump.copyPlaceholders(_placeholderPath());
     dump.dumpFiles();
 
     let mpq = MPQ.create(_outputPath(`${mapName}.${Constants.WC_EXT}`));
@@ -106,6 +106,6 @@ function _outputPath(path) {
     return './data/output/' + path;
 }
 
-function _samplePath() {
-    return './data/sample';
+function _placeholderPath() {
+    return './data/placeholder';
 }

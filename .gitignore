@@ -90,7 +90,11 @@ typings/
 .dynamodb/
 
 .idea
-data/input/
-data/output/
+
+data/input/*
+data/output/*
+
+!data/input/.gitkeep
+!data/output/.gitkeep
 
 package-lock.json
