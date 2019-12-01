@@ -56,27 +56,35 @@ function dumpMap(map) {
     configs[WarFile.Entity.Unit] = map.units;
     configs[WarFile.Other.Info] = map.info;
     configs[WarFile.Other.String] = map.strings;
+    configs[WarFile.Other.Jass] = map.jass;
 
-    let parsers = {};
-    parsers[WarFile.Entity.Doodad] = Translator.Doodads.jsonToWar;
-    parsers[WarFile.Entity.Terrain] = Translator.Terrain.jsonToWar;
-    parsers[WarFile.Entity.Unit] = Translator.Units.jsonToWar;
-    parsers[WarFile.Other.Info] = Translator.Info.jsonToWar;
-    parsers[WarFile.Other.String] = Translator.Strings.jsonToWar;
+    let generators = {};
+    generators[WarFile.Entity.Doodad] = Translator.Doodads.jsonToWar;
+    generators[WarFile.Entity.Terrain] = Translator.Terrain.jsonToWar;
+    generators[WarFile.Entity.Unit] = Translator.Units.jsonToWar;
+    generators[WarFile.Other.Info] = Translator.Info.jsonToWar;
+    generators[WarFile.Other.String] = Translator.Strings.jsonToWar;
+    generators[WarFile.Other.Jass] = _generateJass;
 
     for(let name in configs) {
         let obj = configs[name];
 
         if(obj && !_isEmptyArray(obj) && !_isEmptyObject(obj)) {
-            console.log(`${name} added to dump`);
+            let generator = generators[name];
 
-            dump.addFile(name, _getBuffer(parsers[name](configs[name])));
+            dump.addFile(name, _getBuffer(generator(obj)));
+
+            console.log(`${name} added to dump`);
         }
     }
 
     console.log('-----------------');
 
     return dump;
+}
+
+function _generateJass(jObj) {
+    return jObj.render();
 }
 
 function _getBuffer(translatorProto) {
@@ -86,7 +94,11 @@ function _getBuffer(translatorProto) {
         throw new Error('Translation error: ' + resp.errors.join('; '));
     }
 
-    return resp.buffer;
+    if('buffer' in resp) {
+        return resp.buffer;
+    }
+
+    return resp;
 }
 
 function _isEmptyArray(o) {

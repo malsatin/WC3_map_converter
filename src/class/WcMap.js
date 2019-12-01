@@ -105,8 +105,7 @@ WcMap.prototype.setupInfo = function() {
         2: this.info.map.description,
     };
 
-    // todo: setup camera bounds in JASS
-    // todo: add trigger strings to JASS
+    this.jass.setInfo(this.info);
 };
 
 WcMap.prototype.setupTerrain = function() {
@@ -146,7 +145,7 @@ WcMap.prototype.addBase = function(x, y) {
 
     this.units.push(unit);
 
-    // todo: add user info to JASS
+    this.jass.addPlayer(player);
 };
 
 WcMap.prototype.addGold = function(x, y) {
@@ -155,7 +154,7 @@ WcMap.prototype.addGold = function(x, y) {
 
     this.units.push(unit);
 
-    // todo: add passive building to JASS
+    this.jass.addNeutralBuilding(unit);
 };
 
 WcMap.prototype.addTree = function(x, y) {
@@ -180,7 +179,7 @@ WcMap.prototype.addHeroesShop = function(x, y) {
 
     this.units.push(unit);
 
-    // todo: add passive building to JASS
+    this.jass.addNeutralBuilding(unit);
 };
 
 WcMap.prototype.addItemsShop = function(x, y) {
@@ -188,7 +187,7 @@ WcMap.prototype.addItemsShop = function(x, y) {
 
     this.units.push(unit);
 
-    // todo: add passive building to JASS
+    this.jass.addNeutralBuilding(unit);
 };
 
 WcMap.prototype.addNeutrals = function(x, y) {
@@ -198,7 +197,7 @@ WcMap.prototype.addNeutrals = function(x, y) {
 
     this.units.push(unit);
 
-    // todo: add passive hostile to JASS
+    this.jass.addNeutralHostile(unit);
 };
 
 WcMap.prototype._setTile = function(x, y, tile) {
