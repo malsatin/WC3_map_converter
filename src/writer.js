@@ -94,7 +94,7 @@ function _getBuffer(translatorProto) {
         throw new Error('Translation error: ' + resp.errors.join('; '));
     }
 
-    if('buffer' in resp) {
+    if(resp.buffer) {
         return resp.buffer;
     }
 

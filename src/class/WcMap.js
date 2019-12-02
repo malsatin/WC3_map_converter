@@ -230,7 +230,7 @@ WcMap.prototype._createUnit = function(type, x, y) {
         "abilities": [],
         "type": type,
         "variation": 0,
-        "position": [x, y, 0],
+        "position": [x, y, 270],
         "rotation": 0,
         "scale": [1, 1, 1],
         "player": 15,
