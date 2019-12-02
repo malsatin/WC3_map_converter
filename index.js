@@ -4,6 +4,10 @@ const fs = require('fs');
 const path = require('path');
 const argv = process.argv;
 
+if(argv.length > 3) {
+    throw new Error("Maximum 1 arguments supported");
+}
+
 const Constants = require('./src/constants');
 const Reader = require('./src/reader');
 const Writer = require('./src/writer');

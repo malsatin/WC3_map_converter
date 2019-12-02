@@ -102,7 +102,9 @@ WcMap.prototype.setupInfo = function() {
 
     this.strings = {
         1: this.info.map.name,
-        2: this.info.map.description,
+        2: 'Не важно',
+        3: this.info.map.description,
+        4: 'Неизвестно',
     };
 
     this.jass.setInfo(this.info);
@@ -146,6 +148,10 @@ WcMap.prototype.addBase = function(x, y) {
     this.units.push(unit);
 
     this.jass.addPlayer(player);
+
+    let lastStrId = Object.keys(this.strings).length;
+    this.strings[lastStrId + 1] = player.name;
+    this.strings[lastStrId + 2] = player.name;
 };
 
 WcMap.prototype.addGold = function(x, y) {
@@ -230,7 +236,7 @@ WcMap.prototype._createUnit = function(type, x, y) {
         "abilities": [],
         "type": type,
         "variation": 0,
-        "position": [x, y, 270],
+        "position": [x, y, 300],
         "rotation": 0,
         "scale": [1, 1, 1],
         "player": 15,

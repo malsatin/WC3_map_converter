@@ -32,13 +32,16 @@ JassWrapper.prototype.setMapInfo = function(map) {
 };
 
 JassWrapper.prototype.setCameraInfo = function(cam) {
-    this._data.camera = cam.bounds;
+    this._data.camera = cam.bounds.map(this._prepareFloat);
 };
 
 JassWrapper.prototype.addPlayer = function(player) {
     this._data.players.push({
         id: player.playerNum,
-        pos: player.startingPos,
+        pos: {
+            x: this._prepareFloat(player.startingPos.x),
+            y: this._prepareFloat(player.startingPos.y),
+        },
         control: this._mapControl(player.type),
         race: this._racePref(player.race),
     });
@@ -47,11 +50,7 @@ JassWrapper.prototype.addPlayer = function(player) {
 JassWrapper.prototype.addNeutralBuilding = function(unit) {
     this._data.nBuildings.push({
         type: unit.type,
-        pos: {
-            x: unit.position[0],
-            y: unit.position[1],
-            z: unit.position[2],
-        },
+        pos: this._preparePos3(unit.position),
         gold: unit.gold,
     });
 };
@@ -59,11 +58,7 @@ JassWrapper.prototype.addNeutralBuilding = function(unit) {
 JassWrapper.prototype.addNeutralHostile = function(unit) {
     this._data.nUnits.push({
         type: unit.type,
-        pos: {
-            x: unit.position[0],
-            y: unit.position[1],
-            z: unit.position[2],
-        },
+        pos: this._preparePos3(unit.position),
     });
 };
 
@@ -94,6 +89,18 @@ JassWrapper.prototype._readTemplate = function(name) {
     let path_ = path.resolve(__dirname, folder, fullName);
 
     return fs.readFileSync(path_, {encoding: "utf8"});
+};
+
+JassWrapper.prototype._preparePos3 = function(pos) {
+    return {
+        x: this._prepareFloat(pos[0]),
+        y: this._prepareFloat(pos[1]),
+        z: this._prepareFloat(pos[2]),
+    };
+};
+
+JassWrapper.prototype._prepareFloat = function(num) {
+    return String(num.toFixed(1)).replace('-', '- ');
 };
 
 JassWrapper.prototype._racePref = function(num) {

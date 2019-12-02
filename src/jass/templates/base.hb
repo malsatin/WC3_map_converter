@@ -142,6 +142,11 @@ function InitCustomPlayerSlots takes nothing returns nothing
 endfunction
 
 function InitCustomTeams takes nothing returns nothing
+
+    {{#each players}}
+    call SetPlayerTeam(Player({{id}}), {{id}})
+    {{/each}}
+
 endfunction
 
 //***************************************************************************
@@ -152,10 +157,11 @@ endfunction
 
 //===========================================================================
 function main takes nothing returns nothing
+    local weathereffect we
+
     call SetCameraBounds({{camera.[0]}} + GetCameraMargin(CAMERA_MARGIN_LEFT), {{camera.[1]}} + GetCameraMargin(CAMERA_MARGIN_BOTTOM), {{camera.[2]}} - GetCameraMargin(CAMERA_MARGIN_RIGHT), {{camera.[3]}} - GetCameraMargin(CAMERA_MARGIN_TOP), {{camera.[4]}} + GetCameraMargin(CAMERA_MARGIN_LEFT), {{camera.[5]}} - GetCameraMargin(CAMERA_MARGIN_TOP), {{camera.[6]}} - GetCameraMargin(CAMERA_MARGIN_RIGHT), {{camera.[7]}} + GetCameraMargin(CAMERA_MARGIN_BOTTOM))
     call SetDayNightModels("Environment\\DNC\\DNCLordaeron\\DNCLordaeronTerrain\\DNCLordaeronTerrain.mdl", "Environment\\DNC\\DNCLordaeron\\DNCLordaeronUnit\\DNCLordaeronUnit.mdl")
 
-    local weathereffect we
     set we=AddWeatherEffect(Rect(- 2048.0, - 2048.0, 2048.0, 2048.0), '0000')
     call EnableWeatherEffect(we, true)
 
@@ -181,7 +187,7 @@ endfunction
 
 function config takes nothing returns nothing
     call SetMapName("TRIGSTR_001")
-    call SetMapDescription("TRIGSTR_002")
+    call SetMapDescription("TRIGSTR_003")
     call SetPlayers({{players.length}})
     call SetTeams({{players.length}})
     call SetGamePlacement(MAP_PLACEMENT_USE_MAP_SETTINGS)
