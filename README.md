@@ -31,3 +31,7 @@ I don't think that you would use it to generate actual WC3 maps, but you can fin
 useful examples of working build pipeline for working WC3 maps from scratch.
 
 This project also shows how we could generate JASS code procedurally and many other information.
+
+## Related links
+https://xgm.guru/p/wc3/w3-file-format
+https://xgm.guru/p/wc3/w3-file-format
